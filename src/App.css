@@ -5,7 +5,7 @@
   --white: #ffffff;
   --bg: #111318;
   --bg2: #181b22;
-  --border: #cc0000;
+  --border: #8b0000;
   --border-width: 3px;
 }
 
@@ -361,3 +361,24 @@
 .btn.next { background: var(--blue); color: #fff; }
 .btn.stop { background: #444; color: #ccc; border: 1px solid #555; }
 .btn.report { background: #b8860b; color: #fff; flex: 0.8; }
+
+/* ── Barra info compañero ── */
+.partner-bar {
+  display: flex;
+  gap: 16px;
+  padding: 10px 14px;
+  background: #1a1c22;
+  border-top: 1px solid rgba(204,0,0,0.2);
+  font-size: 0.85rem;
+}
+
+.partner-bar-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #ccc;
+}
+
+.partner-bar-item strong {
+  color: #fff;
+}

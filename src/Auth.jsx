@@ -6,9 +6,8 @@ const SERVER_URL = 'https://ometv-production.up.railway.app';
 export default function Auth({ onLogin }) {
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
     username: '',
+    password: '',
     age: '',
     gender: 'male',
     country: ''
@@ -27,7 +26,7 @@ export default function Auth({ onLogin }) {
 
     const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
     const body = isLogin
-      ? { email: formData.email, password: formData.password }
+      ? { username: formData.username, password: formData.password }
       : formData;
 
     try {
@@ -55,26 +54,20 @@ export default function Auth({ onLogin }) {
       <div className="auth-box">
         <h1><span style={{color:'#fff'}}>TR</span><span style={{color:'#0047FF'}}>-</span><span style={{color:'#e00'}}>Live</span></h1>
         <div className="auth-tabs">
-          <button
-            className={isLogin ? 'active' : ''}
-            onClick={() => setIsLogin(true)}
-          >
+          <button className={isLogin ? 'active' : ''} onClick={() => setIsLogin(true)}>
             Iniciar Sesión
           </button>
-          <button
-            className={!isLogin ? 'active' : ''}
-            onClick={() => setIsLogin(false)}
-          >
+          <button className={!isLogin ? 'active' : ''} onClick={() => setIsLogin(false)}>
             Registrarse
           </button>
         </div>
 
         <form onSubmit={handleSubmit}>
           <input
-            type="email"
-            name="email"
-            placeholder="Email"
-            value={formData.email}
+            type="text"
+            name="username"
+            placeholder="Usuario"
+            value={formData.username}
             onChange={handleChange}
             required
           />
@@ -89,14 +82,6 @@ export default function Auth({ onLogin }) {
 
           {!isLogin && (
             <>
-              <input
-                type="text"
-                name="username"
-                placeholder="Nombre de usuario"
-                value={formData.username}
-                onChange={handleChange}
-                required
-              />
               <input
                 type="number"
                 name="age"

@@ -109,10 +109,10 @@ export default function App() {
       setPartner(null);
     });
 
-    socket.on('partner_found', ({ initiator, partnerUsername, partnerCountry, partnerUserId }) => {
+    socket.on('partner_found', ({ initiator, partnerUsername, partnerCountry, partnerUserId, partnerGender }) => {
       setStatus('connected');
-      setPartner({ username: partnerUsername, country: partnerCountry, userId: partnerUserId });
-      setMessages([{ text: `¡Conectado con ${partnerUsername} de ${partnerCountry}!`, from: 'system' }]);
+      setPartner({ username: partnerUsername, country: partnerCountry, userId: partnerUserId, gender: partnerGender });
+      setMessages([{ text: `¡Conectado con ${partnerUsername}!`, from: 'system' }]);
       setShowReport(false);
       setReportSent(false);
       startWebRTC(initiator);
@@ -328,6 +328,19 @@ export default function App() {
           />
           <button type="submit" disabled={status !== 'connected'}>Enviar</button>
         </form>
+
+        {/* Info del compañero */}
+        {status === 'connected' && partner && (
+          <div className="partner-bar">
+            <span className="partner-bar-item">
+              🌍 <strong>{partner.country}</strong>
+            </span>
+            <span className="partner-bar-item">
+              {partner.gender === 'male' ? '👨' : partner.gender === 'female' ? '👩' : '🧑'}{' '}
+              <strong>{partner.gender === 'male' ? 'Hombre' : partner.gender === 'female' ? 'Mujer' : 'Otro'}</strong>
+            </span>
+          </div>
+        )}
 
         <div className="controls">
           {status === 'idle' && (
