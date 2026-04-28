@@ -138,7 +138,6 @@ export default function Gifts({ token, partnerId, socket, onGiftSent }) {
               ))}
               <div ref={paypalRef} className="paypal-btn-container" />
             </div>
-            </div>
           ) : (
             <div className="gifts-grid">
               {GIFTS.map(gift => (
