@@ -20,36 +20,24 @@
 }
 
 /* ── Logo en el borde superior ── */
-.app::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: var(--border-width);
-  background: linear-gradient(90deg, transparent 0%, var(--border) 30%, var(--border) 70%, transparent 100%);
-  z-index: 10;
-}
-
 .app-logo {
   position: absolute;
   top: -1px;
   left: 50%;
   transform: translateX(-50%);
   background: var(--bg);
-  padding: 0 16px;
+  padding: 4px 16px;
   z-index: 11;
   font-size: 1.1rem;
   font-weight: 900;
   letter-spacing: 1px;
   line-height: 1;
-  padding-top: 4px;
-  padding-bottom: 4px;
   border-left: var(--border-width) solid var(--border);
   border-right: var(--border-width) solid var(--border);
   border-bottom: var(--border-width) solid var(--border);
   border-radius: 0 0 8px 8px;
   user-select: none;
+  white-space: nowrap;
 }
 
 .app-logo .tr { color: var(--white); }
@@ -61,6 +49,7 @@
   flex: 1;
   position: relative;
   background: #0a0c10;
+  min-height: 0;
 }
 
 .video-wrapper.remote {
@@ -80,6 +69,7 @@
   border: 2px solid var(--border);
   background: #000;
   transition: width 0.3s ease, height 0.3s ease;
+  z-index: 5;
 }
 
 .video-wrapper.local.expanded {
@@ -162,14 +152,14 @@
   border-radius: 20px;
   font-size: 0.85rem;
   color: #fff;
-  border: 1px solid rgba(204,0,0,0.4);
+  border: 1px solid rgba(139,0,0,0.4);
 }
 
 /* ── Botón logout ── */
 .logout-btn {
   position: absolute;
   top: 12px;
-  right: 200px;
+  right: 16px;
   background: rgba(0,0,0,0.5);
   border: 1px solid #444;
   color: #aaa;
@@ -178,6 +168,7 @@
   cursor: pointer;
   font-size: 0.8rem;
   transition: all 0.2s;
+  z-index: 6;
 }
 
 .logout-btn:hover {
@@ -251,7 +242,7 @@
   display: flex;
   flex-direction: column;
   background: var(--bg2);
-  border-left: 2px solid rgba(204,0,0,0.3);
+  border-left: 2px solid rgba(139,0,0,0.3);
 }
 
 .messages {
@@ -309,7 +300,7 @@
   display: flex;
   gap: 8px;
   padding: 12px;
-  border-top: 1px solid rgba(204,0,0,0.2);
+  border-top: 1px solid rgba(139,0,0,0.2);
 }
 
 .chat-input input {
@@ -341,12 +332,33 @@
 .chat-input button:hover:not(:disabled) { opacity: 0.85; }
 .chat-input button:disabled { opacity: 0.4; cursor: not-allowed; }
 
+/* ── Barra info compañero ── */
+.partner-bar {
+  display: flex;
+  gap: 16px;
+  padding: 10px 14px;
+  background: #1a1c22;
+  border-top: 1px solid rgba(139,0,0,0.2);
+  font-size: 0.85rem;
+}
+
+.partner-bar-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #ccc;
+}
+
+.partner-bar-item strong {
+  color: #fff;
+}
+
 /* ── Controles ── */
 .controls {
   display: flex;
   gap: 8px;
   padding: 12px;
-  border-top: 1px solid rgba(204,0,0,0.2);
+  border-top: 1px solid rgba(139,0,0,0.2);
 }
 
 .btn {
@@ -367,27 +379,6 @@
 .btn.next { background: var(--blue); color: #fff; }
 .btn.stop { background: #444; color: #ccc; border: 1px solid #555; }
 .btn.report { background: #b8860b; color: #fff; flex: 0.8; }
-
-/* ── Barra info compañero ── */
-.partner-bar {
-  display: flex;
-  gap: 16px;
-  padding: 10px 14px;
-  background: #1a1c22;
-  border-top: 1px solid rgba(204,0,0,0.2);
-  font-size: 0.85rem;
-}
-
-.partner-bar-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: #ccc;
-}
-
-.partner-bar-item strong {
-  color: #fff;
-}
 
 /* ── Botón expandir cámara local ── */
 .expand-btn {
@@ -411,4 +402,86 @@
 
 .expand-btn:hover {
   background: rgba(139,0,0,0.7);
+}
+
+/* ── RESPONSIVE MÓVIL ── */
+@media (max-width: 640px) {
+  .app {
+    flex-direction: column;
+    height: 100dvh;
+    border-radius: 0;
+    border: none;
+    border-top: var(--border-width) solid var(--border);
+  }
+
+  .app-logo {
+    font-size: 0.95rem;
+    padding: 3px 12px;
+  }
+
+  .video-section {
+    flex: 0 0 45vh;
+    width: 100%;
+  }
+
+  .video-wrapper.local {
+    width: 100px;
+    height: 75px;
+    bottom: 8px;
+    right: 8px;
+  }
+
+  .video-wrapper.local.expanded {
+    width: 160px;
+    height: 120px;
+  }
+
+  .logout-btn {
+    top: 8px;
+    right: 8px;
+    padding: 4px 8px;
+    font-size: 0.75rem;
+  }
+
+  .partner-info {
+    font-size: 0.75rem;
+    padding: 4px 8px;
+    top: 8px;
+    left: 8px;
+  }
+
+  .chat-section {
+    width: 100%;
+    flex: 1;
+    border-left: none;
+    border-top: 2px solid rgba(139,0,0,0.3);
+    min-height: 0;
+  }
+
+  .messages {
+    padding: 10px;
+  }
+
+  .message {
+    font-size: 0.85rem;
+  }
+
+  .controls {
+    padding: 8px;
+    gap: 6px;
+  }
+
+  .btn {
+    padding: 10px 6px;
+    font-size: 0.82rem;
+  }
+
+  .chat-input {
+    padding: 8px;
+  }
+
+  .partner-bar {
+    padding: 8px 12px;
+    font-size: 0.8rem;
+  }
 }
