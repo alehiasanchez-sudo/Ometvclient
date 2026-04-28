@@ -4,6 +4,7 @@ import './Gifts.css';
 const SERVER_URL = 'https://ometv-production.up.railway.app';
 
 const GIFTS = [
+  { id: 'like',    emoji: '👍', name: 'Like',     cost: 1   },
   { id: 'rose',    emoji: '🌹', name: 'Rosa',     cost: 10  },
   { id: 'heart',   emoji: '❤️', name: 'Corazón',  cost: 25  },
   { id: 'diamond', emoji: '💎', name: 'Diamante', cost: 100 },
