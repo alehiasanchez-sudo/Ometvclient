@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { io } from 'socket.io-client';
 import Auth from './Auth';
+import Gifts from './Gifts';
+import Withdraw from './Withdraw';
 import './App.css';
 
 const SERVER_URL = 'https://ometv-production.up.railway.app';
@@ -28,6 +30,8 @@ export default function App() {
   const [reportReason, setReportReason] = useState('');
   const [reportSent, setReportSent] = useState(false);
   const [localExpanded, setLocalExpanded] = useState(false);
+  const [giftAnimation, setGiftAnimation] = useState(null);
+  const [showWithdraw, setShowWithdraw] = useState(false);
 
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
@@ -150,6 +154,11 @@ export default function App() {
       setMessages([{ text: 'El extraño se fue. Buscando otro...', from: 'system' }]);
       setPartner(null);
       setStatus('waiting');
+    });
+
+    socket.on('gift_received', (data) => {
+      setGiftAnimation(data);
+      setTimeout(() => setGiftAnimation(null), 3000);
     });
 
     socket.on('chat_message', (msg) => {
@@ -296,6 +305,14 @@ export default function App() {
           )}
         </div>
 
+        {/* Animación de regalo recibido */}
+        {giftAnimation && (
+          <div className="gift-animation">
+            <span>{giftAnimation.emoji}</span>
+            <p>{giftAnimation.name}</p>
+          </div>
+        )}
+
         <div className={`video-wrapper local ${localExpanded ? 'expanded' : ''}`}>
           <video ref={localVideoRef} autoPlay playsInline muted className="video" />
           <span className="label">Tú ({user?.username})</span>
@@ -306,6 +323,11 @@ export default function App() {
 
         {/* Botón logout */}
         <button className="logout-btn" onClick={handleLogout}>Salir</button>
+        <button className="withdraw-btn" onClick={() => setShowWithdraw(true)}>💰</button>
+
+        {showWithdraw && (
+          <Withdraw token={token} onClose={() => setShowWithdraw(false)} />
+        )}
       </div>
 
       <div className="chat-section">
@@ -356,6 +378,7 @@ export default function App() {
           {status === 'connected' && (
             <>
               <button className="btn next" onClick={handleNext}>⏭ Siguiente</button>
+              <Gifts token={token} partnerId={partner?.userId} socket={socketRef.current} />
               <button className="btn report" onClick={() => setShowReport(true)}>⚑ Reportar</button>
               <button className="btn stop" onClick={handleStop}>✕ Detener</button>
             </>

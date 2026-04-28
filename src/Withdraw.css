@@ -1,0 +1,146 @@
+.withdraw-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.withdraw-modal {
+  background: #1a1c22;
+  border: 1px solid #8b0000;
+  border-radius: 16px;
+  padding: 24px;
+  width: 100%;
+  max-width: 360px;
+  color: #fff;
+}
+
+.withdraw-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.withdraw-header h2 {
+  font-size: 1.1rem;
+  color: #fff;
+}
+
+.close-btn {
+  background: transparent;
+  border: none;
+  color: #aaa;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.withdraw-balance {
+  display: flex;
+  justify-content: space-between;
+  background: #222;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  font-size: 0.9rem;
+}
+
+.rate {
+  color: #aaa;
+  font-size: 0.8rem;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+label {
+  font-size: 0.8rem;
+  color: #aaa;
+  margin-bottom: -6px;
+}
+
+input {
+  background: #222;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: #fff;
+  font-size: 0.95rem;
+  outline: none;
+}
+
+input:focus {
+  border-color: #8b0000;
+}
+
+.usd-preview {
+  background: #111;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 0.9rem;
+  color: #aaa;
+  text-align: center;
+}
+
+.usd-preview strong {
+  color: #4ade80;
+  font-size: 1.1rem;
+}
+
+button[type="submit"] {
+  background: #e00;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 13px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 4px;
+  transition: opacity 0.2s;
+}
+
+button[type="submit"]:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+button[type="submit"]:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.withdraw-msg {
+  text-align: center;
+  font-size: 0.85rem;
+  color: #aaa;
+}
+
+.withdraw-msg.error {
+  color: #ef4444;
+}
+
+.withdraw-success {
+  text-align: center;
+  padding: 20px 0;
+}
+
+.withdraw-success p {
+  font-size: 1.1rem;
+  color: #4ade80;
+  margin-bottom: 16px;
+}
+
+.withdraw-success button {
+  background: #333;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 24px;
+  cursor: pointer;
+}
