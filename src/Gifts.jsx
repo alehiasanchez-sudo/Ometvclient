@@ -81,13 +81,19 @@ export default function Gifts({ token, partnerId, socket, onGiftSent }) {
 
     window.paypal.Buttons({
       createOrder: async () => {
-        const res = await fetch(`${SERVER_URL}/api/coins/create-order`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-          body: JSON.stringify({ packageId: pkg.id })
-        });
-        const { orderId } = await res.json();
-        return orderId;
+        try {
+          const res = await fetch(`${SERVER_URL}/api/coins/create-order`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+            body: JSON.stringify({ packageId: pkg.id })
+          });
+          const data = await res.json();
+          if (!data.orderId) throw new Error('No order ID received');
+          return data.orderId;
+        } catch (err) {
+          setMsg('Error creando orden: ' + err.message);
+          throw err;
+        }
       },
       onApprove: async (data) => {
         const capture = await fetch(`${SERVER_URL}/api/coins/capture-order`, {
