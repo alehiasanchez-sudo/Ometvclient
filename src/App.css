@@ -23,7 +23,7 @@
 .app-logo {
   position: absolute;
   top: -1px;
-  left: 40%;
+  left: 41%;
   transform: translateX(-50%);
   background: var(--bg);
   padding: 4px 16px;
