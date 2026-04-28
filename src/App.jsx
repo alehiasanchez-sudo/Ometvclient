@@ -243,6 +243,9 @@ export default function App() {
 
   return (
     <div className="app">
+      <div className="app-logo">
+        <span className="tr">TR</span><span className="dash">-</span><span className="live">Live</span>
+      </div>
       <div className="video-section">
         <div className="video-wrapper remote">
           <video ref={remoteVideoRef} autoPlay playsInline className="video" />

@@ -53,7 +53,7 @@ export default function Auth({ onLogin }) {
   return (
     <div className="auth-container">
       <div className="auth-box">
-        <h1>OmeTV</h1>
+        <h1><span style={{color:'#fff'}}>TR</span><span style={{color:'#0047FF'}}>-</span><span style={{color:'#e00'}}>Live</span></h1>
         <div className="auth-tabs">
           <button
             className={isLogin ? 'active' : ''}
