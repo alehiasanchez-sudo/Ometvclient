@@ -242,3 +242,104 @@
 .btn:hover {
   opacity: 0.85;
 }
+
+/* ── Info del compañero ── */
+.partner-info {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: flex;
+  gap: 10px;
+  background: rgba(0,0,0,0.6);
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  color: #fff;
+}
+
+/* ── Botón logout ── */
+.logout-btn {
+  position: absolute;
+  top: 12px;
+  right: 200px;
+  background: rgba(0,0,0,0.5);
+  border: 1px solid #444;
+  color: #aaa;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.2s;
+}
+
+.logout-btn:hover {
+  background: #333;
+  color: #fff;
+}
+
+/* ── Modal de reporte ── */
+.report-modal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 12px;
+  padding: 24px;
+  width: 280px;
+  z-index: 10;
+}
+
+.report-modal h3 {
+  margin-bottom: 16px;
+  color: #ef4444;
+  font-size: 1rem;
+}
+
+.report-modal select {
+  width: 100%;
+  background: #222;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 10px;
+  color: #fff;
+  margin-bottom: 16px;
+  outline: none;
+}
+
+.report-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.report-actions button {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.report-actions button:first-child {
+  background: #ef4444;
+  color: #fff;
+}
+
+.report-actions button:first-child:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.report-actions button:last-child {
+  background: #333;
+  color: #aaa;
+}
+
+/* ── Botón reportar ── */
+.btn.report {
+  background: #f59e0b;
+  color: #fff;
+  flex: 0.8;
+}

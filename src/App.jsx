@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { io } from 'socket.io-client';
+import Auth from './Auth';
 import './App.css';
 
 const SERVER_URL = 'https://ometv-production.up.railway.app';
@@ -12,10 +13,20 @@ const ICE_SERVERS = {
 };
 
 export default function App() {
+  const [token, setToken] = useState(localStorage.getItem('token'));
+  const [user, setUser] = useState(() => {
+    const u = localStorage.getItem('user');
+    return u ? JSON.parse(u) : null;
+  });
+
   const [status, setStatus] = useState('idle');
   const [messages, setMessages] = useState([]);
   const [inputMsg, setInputMsg] = useState('');
   const [camError, setCamError] = useState('');
+  const [partner, setPartner] = useState(null); // { username, country, userId }
+  const [showReport, setShowReport] = useState(false);
+  const [reportReason, setReportReason] = useState('');
+  const [reportSent, setReportSent] = useState(false);
 
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
@@ -23,15 +34,12 @@ export default function App() {
   const pcRef = useRef(null);
   const localStreamRef = useRef(null);
 
-  // ── helpers que NO dependen de estado de React ──
   const cleanupPeer = () => {
     if (pcRef.current) {
       pcRef.current.close();
       pcRef.current = null;
     }
-    if (remoteVideoRef.current) {
-      remoteVideoRef.current.srcObject = null;
-    }
+    if (remoteVideoRef.current) remoteVideoRef.current.srcObject = null;
   };
 
   const getLocalStream = async () => {
@@ -58,19 +66,13 @@ export default function App() {
     stream.getTracks().forEach(track => pc.addTrack(track, stream));
 
     pc.ontrack = (event) => {
-      if (remoteVideoRef.current) {
-        remoteVideoRef.current.srcObject = event.streams[0];
-      }
+      if (remoteVideoRef.current) remoteVideoRef.current.srcObject = event.streams[0];
     };
 
     pc.onicecandidate = (event) => {
       if (event.candidate && socketRef.current) {
         socketRef.current.emit('signal', { candidate: event.candidate });
       }
-    };
-
-    pc.onconnectionstatechange = () => {
-      console.log('WebRTC state:', pc.connectionState);
     };
 
     if (initiator) {
@@ -84,22 +86,35 @@ export default function App() {
     }
   };
 
-  // ── Socket ──
   useEffect(() => {
+    if (!token) return;
+
     const socket = io(SERVER_URL);
     socketRef.current = socket;
 
-    socket.on('connect', () => console.log('Socket conectado:', socket.id));
-    socket.on('connect_error', (err) => console.error('Error socket:', err));
+    socket.on('connect', () => {
+      // Autenticar con el servidor
+      socket.emit('authenticate', token);
+    });
+
+    socket.on('authenticated', () => console.log('Socket autenticado'));
+    socket.on('auth_error', (msg) => {
+      console.error('Auth error:', msg);
+      handleLogout();
+    });
 
     socket.on('waiting', () => {
       setStatus('waiting');
       setMessages([]);
+      setPartner(null);
     });
 
-    socket.on('partner_found', ({ initiator }) => {
+    socket.on('partner_found', ({ initiator, partnerUsername, partnerCountry, partnerUserId }) => {
       setStatus('connected');
-      setMessages([{ text: '¡Conectado con un extraño!', from: 'system' }]);
+      setPartner({ username: partnerUsername, country: partnerCountry, userId: partnerUserId });
+      setMessages([{ text: `¡Conectado con ${partnerUsername} de ${partnerCountry}!`, from: 'system' }]);
+      setShowReport(false);
+      setReportSent(false);
       startWebRTC(initiator);
     });
 
@@ -125,15 +140,15 @@ export default function App() {
     socket.on('partner_disconnected', () => {
       setStatus('idle');
       setMessages(prev => [...prev, { text: 'El extraño se desconectó.', from: 'system' }]);
+      setPartner(null);
       cleanupPeer();
     });
 
     socket.on('partner_skipped', () => {
-      // El otro presionó "Siguiente" — el servidor ya nos puso a buscar
       cleanupPeer();
       setMessages([{ text: 'El extraño se fue. Buscando otro...', from: 'system' }]);
+      setPartner(null);
       setStatus('waiting');
-      // NO llamar find_partner aquí, el servidor ya lo hace
     });
 
     socket.on('chat_message', (msg) => {
@@ -148,15 +163,29 @@ export default function App() {
         localStreamRef.current = null;
       }
     };
-  }, []);
+  }, [token]);
 
-  // ── Handlers ──
+  const handleLogin = (newToken, newUser) => {
+    setToken(newToken);
+    setUser(newUser);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setToken(null);
+    setUser(null);
+    setStatus('idle');
+    cleanupPeer();
+    if (socketRef.current) socketRef.current.disconnect();
+  };
+
   const handleStart = async () => {
     setCamError('');
     try {
       await getLocalStream();
     } catch (err) {
-      setCamError('No se pudo acceder a la cámara. Verifica los permisos del navegador.');
+      setCamError('No se pudo acceder a la cámara. Verifica los permisos.');
       return;
     }
     socketRef.current.emit('find_partner');
@@ -168,6 +197,8 @@ export default function App() {
     socketRef.current.emit('next');
     setStatus('waiting');
     setMessages([]);
+    setPartner(null);
+    setShowReport(false);
   };
 
   const handleStop = () => {
@@ -175,6 +206,8 @@ export default function App() {
     socketRef.current.emit('stop');
     setStatus('idle');
     setMessages([]);
+    setPartner(null);
+    setShowReport(false);
   };
 
   const sendMessage = (e) => {
@@ -185,11 +218,43 @@ export default function App() {
     setInputMsg('');
   };
 
+  const handleReport = async () => {
+    if (!reportReason || !partner?.userId) return;
+    try {
+      const res = await fetch(`${SERVER_URL}/api/reports`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ reportedUserId: partner.userId, reason: reportReason })
+      });
+      if (res.ok) {
+        setReportSent(true);
+        setShowReport(false);
+        setReportReason('');
+      }
+    } catch (err) {
+      console.error('Error al reportar:', err);
+    }
+  };
+
+  if (!token) return <Auth onLogin={handleLogin} />;
+
   return (
     <div className="app">
       <div className="video-section">
         <div className="video-wrapper remote">
           <video ref={remoteVideoRef} autoPlay playsInline className="video" />
+
+          {/* Info del compañero */}
+          {status === 'connected' && partner && (
+            <div className="partner-info">
+              <span>👤 {partner.username}</span>
+              <span>🌍 {partner.country}</span>
+            </div>
+          )}
+
           {status !== 'connected' && (
             <div className="video-overlay">
               {status === 'idle' && (
@@ -206,12 +271,34 @@ export default function App() {
               )}
             </div>
           )}
+
+          {/* Modal de reporte */}
+          {showReport && (
+            <div className="report-modal">
+              <h3>Reportar usuario</h3>
+              <select value={reportReason} onChange={e => setReportReason(e.target.value)}>
+                <option value="">Selecciona una razón</option>
+                <option value="inappropriate">Contenido inapropiado</option>
+                <option value="harassment">Acoso</option>
+                <option value="spam">Spam</option>
+                <option value="underage">Menor de edad</option>
+                <option value="other">Otro</option>
+              </select>
+              <div className="report-actions">
+                <button onClick={handleReport} disabled={!reportReason}>Enviar</button>
+                <button onClick={() => setShowReport(false)}>Cancelar</button>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="video-wrapper local">
           <video ref={localVideoRef} autoPlay playsInline muted className="video" />
-          <span className="label">Tú</span>
+          <span className="label">Tú ({user?.username})</span>
         </div>
+
+        {/* Botón logout */}
+        <button className="logout-btn" onClick={handleLogout}>Salir</button>
       </div>
 
       <div className="chat-section">
@@ -223,6 +310,9 @@ export default function App() {
               {msg.text}
             </div>
           ))}
+          {reportSent && (
+            <div className="message system">✓ Reporte enviado</div>
+          )}
         </div>
 
         <form className="chat-input" onSubmit={sendMessage}>
@@ -246,6 +336,7 @@ export default function App() {
           {status === 'connected' && (
             <>
               <button className="btn next" onClick={handleNext}>⏭ Siguiente</button>
+              <button className="btn report" onClick={() => setShowReport(true)}>⚑ Reportar</button>
               <button className="btn stop" onClick={handleStop}>✕ Detener</button>
             </>
           )}
