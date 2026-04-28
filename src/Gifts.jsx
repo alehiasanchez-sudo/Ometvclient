@@ -81,6 +81,13 @@ export default function Gifts({ token, partnerId, socket, onGiftSent }) {
     if (paypalRef.current) paypalRef.current.innerHTML = '';
 
     window.paypal.Buttons({
+      style: {
+        layout: 'vertical',
+        color:  'blue',
+        shape:  'rect',
+        label:  'pay'
+      },
+      fundingSource: window.paypal.FUNDING.PAYPAL,
       createOrder: async () => {
         try {
           const res = await fetch(`${SERVER_URL}/api/coins/create-order`, {
