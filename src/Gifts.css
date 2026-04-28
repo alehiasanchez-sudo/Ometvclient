@@ -133,3 +133,7 @@
   color: #4ade80;
   font-weight: 700;
 }
+
+.paypal-btn-container {
+  margin-top: 8px;
+}

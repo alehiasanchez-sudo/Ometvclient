@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './Gifts.css';
 
 const SERVER_URL = 'https://ometv-production.up.railway.app';
@@ -24,10 +24,17 @@ export default function Gifts({ token, partnerId, socket, onGiftSent }) {
   const [showBuy, setShowBuy] = useState(false);
   const [sending, setSending] = useState(false);
   const [msg, setMsg] = useState('');
+  const paypalRef = useRef(null);
 
   useEffect(() => {
     if (token) fetchBalance();
   }, [token, open]);
+
+  useEffect(() => {
+    if (!showBuy || !paypalRef.current) return;
+    // Limpiar botones anteriores
+    paypalRef.current.innerHTML = '';
+  }, [showBuy]);
 
   const fetchBalance = async () => {
     try {
@@ -66,44 +73,41 @@ export default function Gifts({ token, partnerId, socket, onGiftSent }) {
   };
 
   const buyCoins = async (pkg) => {
-    try {
-      // Crear orden PayPal
-      const res = await fetch(`${SERVER_URL}/api/coins/create-order`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ packageId: pkg.id })
-      });
-      const { orderId } = await res.json();
-
-      // Abrir PayPal en popup con URL correcta
-      const popup = window.open(
-        `https://www.sandbox.paypal.com/checkoutnow?token=${orderId}`,
-        'paypal',
-        'width=500,height=600,scrollbars=yes'
-      );
-
-      // Esperar que cierre el popup
-      const timer = setInterval(async () => {
-        if (popup.closed) {
-          clearInterval(timer);
-          // Capturar el pago
-          const capture = await fetch(`${SERVER_URL}/api/coins/capture-order`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-            body: JSON.stringify({ orderId, packageId: pkg.id })
-          });
-          const result = await capture.json();
-          if (result.success) {
-            setBalance(result.balance);
-            setMsg(`✓ +${result.coinsAdded} monedas`);
-            setShowBuy(false);
-            setTimeout(() => setMsg(''), 3000);
-          }
-        }
-      }, 1000);
-    } catch {
-      setMsg('Error al procesar pago');
+    if (!window.paypal) {
+      setMsg('PayPal no disponible');
+      return;
     }
+    if (paypalRef.current) paypalRef.current.innerHTML = '';
+
+    window.paypal.Buttons({
+      createOrder: async () => {
+        const res = await fetch(`${SERVER_URL}/api/coins/create-order`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ packageId: pkg.id })
+        });
+        const { orderId } = await res.json();
+        return orderId;
+      },
+      onApprove: async (data) => {
+        const capture = await fetch(`${SERVER_URL}/api/coins/capture-order`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ orderId: data.orderID, packageId: pkg.id })
+        });
+        const result = await capture.json();
+        if (result.success) {
+          setBalance(result.balance);
+          setMsg(`✓ +${result.coinsAdded} monedas añadidas`);
+          setShowBuy(false);
+          setTimeout(() => setMsg(''), 3000);
+        }
+      },
+      onError: (err) => {
+        console.error('PayPal error:', err);
+        setMsg('Error en el pago');
+      }
+    }).render(paypalRef.current);
   };
 
   return (
@@ -132,6 +136,8 @@ export default function Gifts({ token, partnerId, socket, onGiftSent }) {
                   <span className="pkg-price">${pkg.price}</span>
                 </button>
               ))}
+              <div ref={paypalRef} className="paypal-btn-container" />
+            </div>
             </div>
           ) : (
             <div className="gifts-grid">
