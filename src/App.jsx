@@ -27,6 +27,7 @@ export default function App() {
   const [showReport, setShowReport] = useState(false);
   const [reportReason, setReportReason] = useState('');
   const [reportSent, setReportSent] = useState(false);
+  const [localExpanded, setLocalExpanded] = useState(false);
 
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
@@ -295,9 +296,12 @@ export default function App() {
           )}
         </div>
 
-        <div className="video-wrapper local">
+        <div className={`video-wrapper local ${localExpanded ? 'expanded' : ''}`}>
           <video ref={localVideoRef} autoPlay playsInline muted className="video" />
           <span className="label">Tú ({user?.username})</span>
+          <button className="expand-btn" onClick={() => setLocalExpanded(e => !e)}>
+            {localExpanded ? '⊡' : '⊞'}
+          </button>
         </div>
 
         {/* Botón logout */}
