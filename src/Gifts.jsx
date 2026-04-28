@@ -75,11 +75,11 @@ export default function Gifts({ token, partnerId, socket, onGiftSent }) {
       });
       const { orderId } = await res.json();
 
-      // Abrir PayPal en popup
+      // Abrir PayPal en popup con URL correcta
       const popup = window.open(
         `https://www.sandbox.paypal.com/checkoutnow?token=${orderId}`,
         'paypal',
-        'width=500,height=600'
+        'width=500,height=600,scrollbars=yes'
       );
 
       // Esperar que cierre el popup
