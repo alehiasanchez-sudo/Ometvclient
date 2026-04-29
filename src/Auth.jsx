@@ -52,7 +52,9 @@ export default function Auth({ onLogin }) {
   return (
     <div className="auth-container">
       <div className="auth-box">
-        <h1><span style={{color:'#fff'}}>TR</span><span style={{color:'#0047FF'}}>-</span><span style={{color:'#e00'}}>Live</span></h1>
+        <div className="auth-logo">
+          <img src="/logo.png" alt="TR-Live" className="auth-logo-img" />
+        </div>
         <div className="auth-tabs">
           <button className={isLogin ? 'active' : ''} onClick={() => setIsLogin(true)}>
             Iniciar Sesión

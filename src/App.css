@@ -26,23 +26,20 @@
   left: 41%;
   transform: translateX(-50%);
   background: var(--bg);
-  padding: 4px 16px;
+  padding: 2px 12px;
   z-index: 11;
-  font-size: 1.1rem;
-  font-weight: 900;
-  letter-spacing: 1px;
-  line-height: 1;
   border-left: var(--border-width) solid var(--border);
   border-right: var(--border-width) solid var(--border);
   border-bottom: var(--border-width) solid var(--border);
   border-radius: 0 0 8px 8px;
   user-select: none;
-  white-space: nowrap;
 }
 
-.app-logo .tr { color: var(--white); }
-.app-logo .dash { color: var(--blue); }
-.app-logo .live { color: var(--red); }
+.app-logo-img {
+  height: 36px;
+  width: auto;
+  display: block;
+}
 
 /* ── Sección de video ── */
 .video-section {
