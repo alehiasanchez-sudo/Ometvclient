@@ -31,6 +31,14 @@ export default function Gifts({ token, partnerId, socket, onGiftSent }) {
     if (token) fetchBalance();
   }, [token, open]);
 
+  // Refrescar balance cuando recibes un regalo
+  useEffect(() => {
+    if (!socket) return;
+    const handleGiftReceived = () => fetchBalance();
+    socket.on('gift_received', handleGiftReceived);
+    return () => socket.off('gift_received', handleGiftReceived);
+  }, [socket]);
+
   useEffect(() => {
     if (!showBuy || !paypalRef.current) return;
     // Limpiar botones anteriores
