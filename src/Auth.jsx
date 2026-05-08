@@ -22,12 +22,29 @@ export default function Auth({ onLogin }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    if (!isLogin) {
+      const ageNum = parseInt(formData.age, 10);
+      if (!Number.isInteger(ageNum) || ageNum < 18) {
+        setError('Debes tener al menos 18 años para registrarte');
+        return;
+      }
+      if (ageNum > 120) {
+        setError('Edad inválida');
+        return;
+      }
+      if (!formData.country) {
+        setError('Selecciona tu país');
+        return;
+      }
+    }
+
     setLoading(true);
 
     const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
     const body = isLogin
       ? { username: formData.username, password: formData.password }
-      : formData;
+      : { ...formData, age: parseInt(formData.age, 10) };
 
     try {
       const res = await fetch(`${SERVER_URL}${endpoint}`, {
@@ -87,12 +104,14 @@ export default function Auth({ onLogin }) {
               <input
                 type="number"
                 name="age"
-                placeholder="Edad"
+                placeholder="Edad (mín. 18 años)"
                 value={formData.age}
                 onChange={handleChange}
                 required
                 min="18"
+                max="120"
               />
+              <p className="age-notice">Debes ser mayor de 18 años para usar TR-Live</p>
               <select name="gender" value={formData.gender} onChange={handleChange} required>
                 <option value="male">Masculino</option>
                 <option value="female">Femenino</option>

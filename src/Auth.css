@@ -106,3 +106,10 @@ form button[type="submit"]:disabled {
   font-size: 0.85rem;
   text-align: center;
 }
+
+.age-notice {
+  color: #888;
+  font-size: 0.78rem;
+  text-align: center;
+  margin: -6px 0 4px;
+}
