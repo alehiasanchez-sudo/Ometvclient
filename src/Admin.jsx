@@ -188,6 +188,14 @@ function UsersTab({ token, isOwner }) {
 }
 
 // ── Reportes (admin y owner) ──
+const REASON_LABELS = {
+  inappropriate: '🔞 Contenido inapropiado',
+  harassment:    '😡 Acoso',
+  spam:          '📢 Spam',
+  underage:      '👶 Menor de edad',
+  other:         '❓ Otro'
+};
+
 function ReportsTab({ token }) {
   const [reports, setReports] = useState([]);
   const [status, setStatus] = useState('pending');
@@ -233,14 +241,18 @@ function ReportsTab({ token }) {
       {loading ? <p>Cargando…</p> : (
         <div className="admin-table-wrapper">
           <table className="admin-table">
-            <thead><tr><th>Reportado</th><th>Por</th><th>Razón</th><th>Fecha</th><th>Acción</th></tr></thead>
+            <thead><tr><th>Reportado</th><th>Reportes totales</th><th>Por</th><th>Razón</th><th>Fecha</th><th>Acción</th></tr></thead>
             <tbody>
-              {reports.length === 0 && <tr><td colSpan="5" style={{ textAlign:'center', padding:20 }}>Sin reportes</td></tr>}
-              {reports.map(r => (
+              {reports.length === 0 && <tr><td colSpan="6" style={{ textAlign:'center', padding:20 }}>Sin reportes</td></tr>}
+              {reports.map(r => {
+                const total = r.reportedUser?.totalReports || 0;
+                const sev = total >= 5 ? 'sev-high' : total >= 3 ? 'sev-mid' : 'sev-low';
+                return (
                 <tr key={r._id}>
                   <td><b>{r.reportedUser?.username || '?'}</b> {r.reportedUser?.banned && '🚫'}</td>
+                  <td><span className={`report-count ${sev}`}>⚑ {total}</span></td>
                   <td>{r.reportedBy?.username || '?'}</td>
-                  <td>{r.reason}</td>
+                  <td>{REASON_LABELS[r.reason] || r.reason}</td>
                   <td>{new Date(r.createdAt).toLocaleString()}</td>
                   <td className="actions">
                     {r.status === 'pending' ? (
@@ -253,7 +265,8 @@ function ReportsTab({ token }) {
                     )}
                   </td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
         </div>

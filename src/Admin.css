@@ -171,3 +171,15 @@
 .admin-table .actions button.danger:hover { background: #d40000; }
 
 .muted { color: #666; font-style: italic; }
+
+.report-count {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.3px;
+}
+.report-count.sev-low  { background: #1e3a5f; color: #4a90e2; }
+.report-count.sev-mid  { background: #4a3010; color: #ffa726; }
+.report-count.sev-high { background: #4a0e0e; color: #ff5252; }
