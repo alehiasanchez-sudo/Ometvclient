@@ -144,14 +144,14 @@ export default function App() {
 
     socket.on('partner_disconnected', () => {
       setStatus('idle');
-      setMessages(prev => [...prev, { text: 'El extraño se desconectó.', from: 'system' }]);
+      setMessages(prev => [...prev, { text: 'El Usuario se desconectó.', from: 'system' }]);
       setPartner(null);
       cleanupPeer();
     });
 
     socket.on('partner_skipped', () => {
       cleanupPeer();
-      setMessages([{ text: 'El extraño se fue. Buscando otro...', from: 'system' }]);
+      setMessages([{ text: 'El Usuario se fue. Buscando otro...', from: 'system' }]);
       setPartner(null);
       setStatus('waiting');
     });
@@ -279,7 +279,7 @@ export default function App() {
               {status === 'waiting' && (
                 <div className="waiting">
                   <div className="spinner" />
-                  <p>Buscando extraño...</p>
+                  <p>Buscando Usuario...</p>
                 </div>
               )}
             </div>
@@ -335,7 +335,7 @@ export default function App() {
           {messages.map((msg, i) => (
             <div key={i} className={`message ${msg.from}`}>
               {msg.from === 'you' && <span className="sender">Tú: </span>}
-              {msg.from === 'stranger' && <span className="sender">Extraño: </span>}
+              {msg.from === 'stranger' && <span className="sender">Usuario: </span>}
               {msg.text}
             </div>
           ))}
