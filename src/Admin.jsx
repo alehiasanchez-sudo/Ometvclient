@@ -3,33 +3,36 @@ import './Admin.css';
 
 const SERVER_URL = 'https://ometv-production.up.railway.app';
 
-export default function Admin({ token, onClose }) {
-  const [tab, setTab] = useState('stats');
+export default function Admin({ token, userRole, onClose }) {
+  const isOwner = userRole === 'owner';
+  // Tab por defecto: si es admin (no owner) abre directo en reportes; owner abre en stats.
+  const [tab, setTab] = useState(isOwner ? 'stats' : 'users');
+
   return (
     <div className="admin-overlay">
       <div className="admin-panel">
         <div className="admin-header">
-          <h2>Panel de Administración</h2>
+          <h2>Panel de Administración <span className="role-badge">{userRole === 'owner' ? '👑 OWNER' : '🛡️ ADMIN'}</span></h2>
           <button className="admin-close" onClick={onClose}>✕</button>
         </div>
         <div className="admin-tabs">
-          <button className={tab === 'stats'  ? 'active' : ''} onClick={() => setTab('stats')}>📊 Stats</button>
-          <button className={tab === 'users'  ? 'active' : ''} onClick={() => setTab('users')}>👥 Usuarios</button>
+          {isOwner && <button className={tab === 'stats' ? 'active' : ''} onClick={() => setTab('stats')}>📊 Stats</button>}
+          <button className={tab === 'users'   ? 'active' : ''} onClick={() => setTab('users')}>👥 Usuarios</button>
           <button className={tab === 'reports' ? 'active' : ''} onClick={() => setTab('reports')}>⚑ Reportes</button>
-          <button className={tab === 'txs'    ? 'active' : ''} onClick={() => setTab('txs')}>💰 Transacciones</button>
+          {isOwner && <button className={tab === 'txs' ? 'active' : ''} onClick={() => setTab('txs')}>💰 Transacciones</button>}
         </div>
         <div className="admin-body">
-          {tab === 'stats'   && <StatsTab token={token} />}
-          {tab === 'users'   && <UsersTab token={token} />}
+          {tab === 'stats'   && isOwner && <StatsTab token={token} />}
+          {tab === 'users'   && <UsersTab token={token} isOwner={isOwner} />}
           {tab === 'reports' && <ReportsTab token={token} />}
-          {tab === 'txs'     && <TxsTab token={token} />}
+          {tab === 'txs'     && isOwner && <TxsTab token={token} />}
         </div>
       </div>
     </div>
   );
 }
 
-// ── Stats ──
+// ── Stats (sólo owner) ──
 function StatsTab({ token }) {
   const [stats, setStats] = useState(null);
   const [err, setErr] = useState('');
@@ -73,7 +76,7 @@ function Card({ label, value, good, warn, danger }) {
 }
 
 // ── Usuarios ──
-function UsersTab({ token }) {
+function UsersTab({ token, isOwner }) {
   const [users, setUsers] = useState([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(false);
@@ -94,10 +97,10 @@ function UsersTab({ token }) {
 
   useEffect(() => { load(); }, []);
 
-  const action = async (id, path, body) => {
+  const action = async (id, path, body, method = 'POST') => {
     try {
-      const r = await fetch(`${SERVER_URL}/api/admin/users/${id}/${path}`, {
-        method: 'POST',
+      const r = await fetch(`${SERVER_URL}/api/admin/users/${id}${path ? '/' + path : ''}`, {
+        method,
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: body ? JSON.stringify(body) : undefined
       });
@@ -113,6 +116,12 @@ function UsersTab({ token }) {
     const delta = parseInt(v, 10);
     if (!Number.isInteger(delta) || delta === 0) return alert('Cantidad inválida');
     action(id, 'coins', { delta });
+  };
+
+  const deleteUser = (id, username) => {
+    const confirm1 = prompt(`⚠️ Vas a ELIMINAR PERMANENTEMENTE a "${username}". Escribe el nombre exacto para confirmar:`);
+    if (confirm1 !== username) return alert('Cancelado: el nombre no coincide');
+    action(id, '', null, 'DELETE');
   };
 
   return (
@@ -145,16 +154,28 @@ function UsersTab({ token }) {
                   <td>{u.gender === 'male' ? '👨' : u.gender === 'female' ? '👩' : '🧑'}</td>
                   <td>{u.country}</td>
                   <td>{u.balance} 🪙</td>
-                  <td>{u.role === 'admin' ? '👑 admin' : 'user'}</td>
+                  <td>{u.role === 'owner' ? '👑 owner' : u.role === 'admin' ? '🛡️ admin' : 'user'}</td>
                   <td>{u.banned ? '🚫 baneado' : '✓'}</td>
                   <td className="actions">
-                    {u.banned
-                      ? <button onClick={() => action(u._id, 'unban')}>Desbanear</button>
-                      : <button className="danger" onClick={() => action(u._id, 'ban')}>Banear</button>}
-                    {u.role === 'admin'
-                      ? <button onClick={() => action(u._id, 'demote')}>Quitar admin</button>
-                      : <button onClick={() => action(u._id, 'promote')}>Hacer admin</button>}
-                    <button onClick={() => adjustCoins(u._id, u.username)}>± Monedas</button>
+                    {/* Ban/Unban: admin y owner */}
+                    {u.role !== 'owner' && (
+                      u.banned
+                        ? <button onClick={() => action(u._id, 'unban')}>Desbanear</button>
+                        : <button className="danger" onClick={() => action(u._id, 'ban')}>Banear</button>
+                    )}
+                    {/* Promote/Demote: sólo owner */}
+                    {isOwner && u.role !== 'owner' && (
+                      u.role === 'admin'
+                        ? <button onClick={() => action(u._id, 'demote')}>Quitar admin</button>
+                        : <button onClick={() => action(u._id, 'promote')}>Hacer admin</button>
+                    )}
+                    {/* Coins + Delete: sólo owner */}
+                    {isOwner && u.role !== 'owner' && (
+                      <>
+                        <button onClick={() => adjustCoins(u._id, u.username)}>± Monedas</button>
+                        <button className="danger" onClick={() => deleteUser(u._id, u.username)}>🗑️ Eliminar</button>
+                      </>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -166,7 +187,7 @@ function UsersTab({ token }) {
   );
 }
 
-// ── Reportes ──
+// ── Reportes (admin y owner) ──
 function ReportsTab({ token }) {
   const [reports, setReports] = useState([]);
   const [status, setStatus] = useState('pending');
@@ -241,7 +262,7 @@ function ReportsTab({ token }) {
   );
 }
 
-// ── Transacciones ──
+// ── Transacciones (sólo owner) ──
 function TxsTab({ token }) {
   const [txs, setTxs] = useState([]);
   const [type, setType] = useState('');

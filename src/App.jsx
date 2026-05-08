@@ -326,7 +326,7 @@ export default function App() {
         {/* Botón logout */}
         <button className="logout-btn" onClick={handleLogout}>Salir</button>
         <button className="withdraw-btn" onClick={() => setShowWithdraw(true)}>💰</button>
-        {user?.role === 'admin' && (
+        {(user?.role === 'admin' || user?.role === 'owner') && (
           <button className="admin-btn" onClick={() => setShowAdmin(true)} title="Panel de administración">⚙️</button>
         )}
 
@@ -334,7 +334,7 @@ export default function App() {
           <Withdraw token={token} onClose={() => setShowWithdraw(false)} />
         )}
         {showAdmin && (
-          <Admin token={token} onClose={() => setShowAdmin(false)} />
+          <Admin token={token} userRole={user?.role} onClose={() => setShowAdmin(false)} />
         )}
       </div>
 
