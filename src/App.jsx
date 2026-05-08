@@ -3,6 +3,7 @@ import { io } from 'socket.io-client';
 import Auth from './Auth';
 import Gifts from './Gifts';
 import Withdraw from './Withdraw';
+import Admin from './Admin';
 import './App.css';
 
 const SERVER_URL = 'https://ometv-production.up.railway.app';
@@ -32,6 +33,7 @@ export default function App() {
   const [localExpanded, setLocalExpanded] = useState(false);
   const [giftAnimation, setGiftAnimation] = useState(null);
   const [showWithdraw, setShowWithdraw] = useState(false);
+  const [showAdmin, setShowAdmin] = useState(false);
 
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
@@ -324,9 +326,15 @@ export default function App() {
         {/* Botón logout */}
         <button className="logout-btn" onClick={handleLogout}>Salir</button>
         <button className="withdraw-btn" onClick={() => setShowWithdraw(true)}>💰</button>
+        {user?.role === 'admin' && (
+          <button className="admin-btn" onClick={() => setShowAdmin(true)} title="Panel de administración">⚙️</button>
+        )}
 
         {showWithdraw && (
           <Withdraw token={token} onClose={() => setShowWithdraw(false)} />
+        )}
+        {showAdmin && (
+          <Admin token={token} onClose={() => setShowAdmin(false)} />
         )}
       </div>
 

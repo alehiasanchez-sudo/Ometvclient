@@ -1,0 +1,164 @@
+.admin-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.admin-panel {
+  background: #0f0f0f;
+  border: 1px solid #2a2a2a;
+  border-radius: 14px;
+  width: 100%;
+  max-width: 1200px;
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 20px;
+  background: #1a1a1a;
+  border-bottom: 1px solid #2a2a2a;
+}
+.admin-header h2 { color: #fff; margin: 0; font-size: 18px; }
+.admin-close {
+  background: transparent;
+  color: #fff;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  padding: 4px 10px;
+}
+
+.admin-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 8px 12px;
+  background: #161616;
+  border-bottom: 1px solid #2a2a2a;
+  overflow-x: auto;
+}
+.admin-tabs button {
+  background: transparent;
+  color: #888;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  white-space: nowrap;
+}
+.admin-tabs button.active {
+  background: #0047FF;
+  color: #fff;
+}
+.admin-tabs button:hover:not(.active) { background: #222; color: #fff; }
+
+.admin-body {
+  padding: 16px 20px;
+  overflow-y: auto;
+  flex: 1;
+  color: #ccc;
+}
+
+.admin-error {
+  color: #ef4444;
+  padding: 8px 12px;
+  background: #2a0000;
+  border-radius: 6px;
+}
+
+.admin-toolbar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.admin-toolbar input,
+.admin-toolbar select {
+  background: #1a1a1a;
+  color: #fff;
+  border: 1px solid #2a2a2a;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 14px;
+}
+.admin-search { flex: 1; min-width: 180px; }
+.admin-toolbar button {
+  background: #0047FF;
+  color: #fff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* Stats */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+}
+.stat-card {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-left: 3px solid #444;
+  padding: 14px 16px;
+  border-radius: 8px;
+}
+.stat-card.good   { border-left-color: #00c853; }
+.stat-card.warn   { border-left-color: #ffa726; }
+.stat-card.danger { border-left-color: #ef4444; }
+.stat-label { color: #888; font-size: 12px; text-transform: uppercase; margin: 0 0 6px; letter-spacing: 0.5px; }
+.stat-value { color: #fff; font-size: 24px; font-weight: 700; margin: 0; }
+
+/* Tabla */
+.admin-table-wrapper {
+  overflow-x: auto;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+}
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.admin-table th,
+.admin-table td {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid #222;
+}
+.admin-table th {
+  background: #1a1a1a;
+  color: #888;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+}
+.admin-table tr.banned { opacity: 0.55; background: #1a0000; }
+.admin-table .actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.admin-table .actions button {
+  background: #2a2a2a;
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.admin-table .actions button:hover { background: #333; }
+.admin-table .actions button.danger { background: #b30000; }
+.admin-table .actions button.danger:hover { background: #d40000; }
+
+.muted { color: #666; font-style: italic; }
