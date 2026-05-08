@@ -34,6 +34,8 @@ export default function App() {
   const [giftAnimation, setGiftAnimation] = useState(null);
   const [showWithdraw, setShowWithdraw] = useState(false);
   const [showAdmin, setShowAdmin] = useState(false);
+  const [micMuted, setMicMuted] = useState(false);
+  const [camOff, setCamOff] = useState(false);
 
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
@@ -47,6 +49,26 @@ export default function App() {
       pcRef.current = null;
     }
     if (remoteVideoRef.current) remoteVideoRef.current.srcObject = null;
+  };
+
+  const toggleMic = () => {
+    const stream = localStreamRef.current;
+    if (!stream) return;
+    const tracks = stream.getAudioTracks();
+    if (!tracks.length) return;
+    const newState = !tracks[0].enabled;
+    tracks.forEach(t => { t.enabled = newState; });
+    setMicMuted(!newState);
+  };
+
+  const toggleCam = () => {
+    const stream = localStreamRef.current;
+    if (!stream) return;
+    const tracks = stream.getVideoTracks();
+    if (!tracks.length) return;
+    const newState = !tracks[0].enabled;
+    tracks.forEach(t => { t.enabled = newState; });
+    setCamOff(!newState);
   };
 
   const getLocalStream = async () => {
@@ -317,7 +339,24 @@ export default function App() {
 
         <div className={`video-wrapper local ${localExpanded ? 'expanded' : ''}`}>
           <video ref={localVideoRef} autoPlay playsInline muted className="video" />
+          {camOff && <div className="cam-off-overlay">📷 Cámara apagada</div>}
           <span className="label">Tú ({user?.username})</span>
+          <div className="media-controls">
+            <button
+              className={`media-btn ${micMuted ? 'off' : ''}`}
+              onClick={toggleMic}
+              title={micMuted ? 'Activar micrófono' : 'Silenciar micrófono'}
+            >
+              {micMuted ? '🔇' : '🎤'}
+            </button>
+            <button
+              className={`media-btn ${camOff ? 'off' : ''}`}
+              onClick={toggleCam}
+              title={camOff ? 'Encender cámara' : 'Apagar cámara'}
+            >
+              {camOff ? '📷' : '📹'}
+            </button>
+          </div>
           <button className="expand-btn" onClick={() => setLocalExpanded(e => !e)}>
             {localExpanded ? '⊡' : '⊞'}
           </button>

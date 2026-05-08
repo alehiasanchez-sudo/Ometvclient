@@ -558,3 +558,48 @@
 .admin-btn:hover {
   background: rgba(0,71,255,0.4);
 }
+
+.media-controls {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+  z-index: 5;
+}
+.media-btn {
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: #fff;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+.media-btn:hover { background: rgba(255,255,255,0.25); }
+.media-btn.off {
+  background: #fff;
+  border-color: #fff;
+  color: #000;
+}
+.media-btn.off:hover { background: #f0f0f0; }
+
+.cam-off-overlay {
+  position: absolute;
+  inset: 0;
+  background: #000;
+  color: #888;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  z-index: 4;
+  border-radius: inherit;
+}
