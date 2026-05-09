@@ -18,13 +18,13 @@
 
 .gifts-panel {
   position: fixed;
-  bottom: 70px;
-  right: 12px;
-  left: 12px;
-  width: auto;
-  max-width: 320px;
-  margin-left: auto;
-  max-height: 80vh;
+  bottom: 248px; /* justo encima de .bottom-section (240px + borde) */
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
+  width: 320px;
+  max-width: calc(100vw - 24px);
+  max-height: calc(100vh - 280px);
   overflow-y: auto;
   background: #1a1c22;
   border: 1px solid #8b0000;
@@ -32,6 +32,17 @@
   padding: 12px;
   z-index: 9999;
   box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+
+@media (max-width: 640px) {
+  .gifts-panel {
+    bottom: 70px;
+    left: 12px;
+    right: 12px;
+    width: auto;
+    max-width: none;
+    max-height: 70vh;
+  }
 }
 
 .gifts-panel::-webkit-scrollbar {

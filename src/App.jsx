@@ -408,8 +408,8 @@ export default function App() {
           <div className="messages">
             {messages.map((msg, i) => (
               <div key={i} className={`message ${msg.from}`}>
-                {msg.from === 'you' && <span className="sender">Tú: </span>}
-                {msg.from === 'stranger' && <span className="sender">Usuario: </span>}
+                {msg.from === 'you' && <span className="sender">{user?.username}: </span>}
+                {msg.from === 'stranger' && <span className="sender">{partner?.username || 'Usuario'}: </span>}
                 {msg.text}
               </div>
             ))}
