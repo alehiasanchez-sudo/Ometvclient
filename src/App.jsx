@@ -354,6 +354,8 @@ export default function App() {
     if (!reportReason || !partner?.userId) return;
     const screenshot = buildReportSnapshot();
     const chatSnapshot = messages.slice(-30).map(m => ({ from: m.from, text: m.text }));
+    console.log('[Reporte] captura:', screenshot ? `${Math.round(screenshot.length / 1024)} KB` : 'NO disponible',
+                '| mensajes:', chatSnapshot.length);
     try {
       const res = await fetch(`${SERVER_URL}/api/reports`, {
         method: 'POST',
@@ -368,13 +370,18 @@ export default function App() {
           chatSnapshot
         })
       });
-      if (res.ok) {
-        setReportSent(true);
-        setShowReport(false);
-        setReportReason('');
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        console.error('[Reporte] servidor respondió', res.status, data);
+        alert('Error al enviar reporte: ' + (data.error || res.status));
+        return;
       }
+      setReportSent(true);
+      setShowReport(false);
+      setReportReason('');
     } catch (err) {
       console.error('Error al reportar:', err);
+      alert('Error de red al enviar reporte');
     }
   };
 
