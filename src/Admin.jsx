@@ -111,8 +111,7 @@ function UsersTab({ token, isOwner }) {
   };
 
   const deleteUser = (id, username) => {
-    const confirm1 = prompt(`⚠️ Vas a ELIMINAR PERMANENTEMENTE a "${username}". Escribe el nombre exacto para confirmar:`);
-    if (confirm1 !== username) return alert('Cancelado: el nombre no coincide');
+    if (!window.confirm(`¿Eliminar permanentemente a "${username}"?`)) return;
     action(id, '', null, 'DELETE');
   };
 
@@ -149,8 +148,8 @@ function UsersTab({ token, isOwner }) {
                   <td>{u.role === 'owner' ? '👑 owner' : u.role === 'admin' ? '🛡️ admin' : 'user'}</td>
                   <td>{u.banned ? '🚫 baneado' : '✓'}</td>
                   <td className="actions">
-                    {/* Ban/Unban: admin y owner */}
-                    {u.role !== 'owner' && (
+                    {/* Ban/Unban: admin puede banear sólo users; owner puede banear users y admins */}
+                    {u.role !== 'owner' && (u.role !== 'admin' || isOwner) && (
                       u.banned
                         ? <button onClick={() => action(u._id, 'unban')}>Desbanear</button>
                         : <button className="danger" onClick={() => action(u._id, 'ban')}>Banear</button>
