@@ -30,7 +30,7 @@ export default function App() {
   const [showReport, setShowReport] = useState(false);
   const [reportReason, setReportReason] = useState('');
   const [reportSent, setReportSent] = useState(false);
-  const [localExpanded, setLocalExpanded] = useState(false);
+  const [localSize, setLocalSize] = useState(0); // 0=S, 1=M, 2=L, 3=XL
   const [giftAnimation, setGiftAnimation] = useState(null);
   const [showWithdraw, setShowWithdraw] = useState(false);
   const [showAdmin, setShowAdmin] = useState(false);
@@ -337,7 +337,7 @@ export default function App() {
           </div>
         )}
 
-        <div className={`video-wrapper local ${localExpanded ? 'expanded' : ''}`}>
+        <div className={`video-wrapper local size-${localSize}`}>
           <video ref={localVideoRef} autoPlay playsInline muted className="video" />
           {camOff && <div className="cam-off-overlay">📷 Cámara apagada</div>}
           <span className="label">Tú ({user?.username})</span>
@@ -357,8 +357,8 @@ export default function App() {
               {camOff ? '📷' : '📹'}
             </button>
           </div>
-          <button className="expand-btn" onClick={() => setLocalExpanded(e => !e)}>
-            {localExpanded ? '⊡' : '⊞'}
+          <button className="expand-btn" onClick={() => setLocalSize(s => (s + 1) % 4)} title="Cambiar tamaño">
+            {['⊞','◰','◳','⊡'][localSize]}
           </button>
         </div>
 
