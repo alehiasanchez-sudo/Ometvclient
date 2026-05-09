@@ -353,7 +353,7 @@ export default function App() {
   const handleReport = async () => {
     if (!reportReason || !partner?.userId) return;
     const screenshot = buildReportSnapshot();
-    const chatSnapshot = messages.slice(-30).map(m => ({ from: m.from, text: m.text }));
+    const chatSnapshot = messages.map(m => ({ from: m.from, text: m.text }));
     console.log('[Reporte] captura:', screenshot ? `${Math.round(screenshot.length / 1024)} KB` : 'NO disponible',
                 '| mensajes:', chatSnapshot.length);
     try {
