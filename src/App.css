@@ -229,7 +229,7 @@
 .bottom-section {
   display: flex;
   flex-direction: row;
-  height: 160px;
+  height: 240px;
   flex-shrink: 0;
   background: var(--bg2);
   border-top: 2px solid rgba(139,0,0,0.3);
@@ -330,6 +330,8 @@
 
 .chat-input button {
   flex: 0 0 auto;
+  width: auto;
+  min-width: 80px;
   background: var(--red);
   color: #fff;
   border: none;
@@ -390,7 +392,7 @@
 .btn.start { background: var(--red); color: #fff; }
 .btn.next { background: var(--blue); color: #fff; }
 .btn.stop { background: #444; color: #ccc; border: 1px solid #555; }
-.btn.report { background: #b8860b; color: #fff; flex: 0.8; }
+.btn.report { background: #b8860b; color: #fff; }
 
 /* ── RESPONSIVE MÓVIL ── */
 @media (max-width: 640px) {
