@@ -296,8 +296,64 @@ export default function App() {
     setInputMsg('');
   };
 
+  // Captura un frame del <video> en JPEG base64. Devuelve null si no se puede.
+  const captureVideoFrame = (videoEl, maxW = 480) => {
+    if (!videoEl || !videoEl.videoWidth) return null;
+    try {
+      const ratio = videoEl.videoHeight / videoEl.videoWidth;
+      const w = Math.min(maxW, videoEl.videoWidth);
+      const h = Math.round(w * ratio);
+      const c = document.createElement('canvas');
+      c.width = w; c.height = h;
+      const ctx = c.getContext('2d');
+      ctx.drawImage(videoEl, 0, 0, w, h);
+      return c.toDataURL('image/jpeg', 0.7);
+    } catch (e) {
+      console.warn('No se pudo capturar frame:', e);
+      return null;
+    }
+  };
+
+  // Compone remoto+local lado a lado para enviar como evidencia
+  const buildReportSnapshot = () => {
+    const remote = remoteVideoRef.current;
+    const local  = localVideoRef.current;
+    if (!remote?.videoWidth && !local?.videoWidth) return null;
+    try {
+      const W = 960, H = 360;
+      const c = document.createElement('canvas');
+      c.width = W; c.height = H;
+      const ctx = c.getContext('2d');
+      ctx.fillStyle = '#000';
+      ctx.fillRect(0, 0, W, H);
+      const half = W / 2;
+      const drawFitted = (v, x) => {
+        if (!v || !v.videoWidth) return;
+        const vr = v.videoWidth / v.videoHeight;
+        const tr = half / H;
+        let dw, dh, dx, dy;
+        if (vr > tr) { dh = H; dw = H * vr; dx = x + (half - dw) / 2; dy = 0; }
+        else         { dw = half; dh = half / vr; dx = x; dy = (H - dh) / 2; }
+        ctx.drawImage(v, dx, dy, dw, dh);
+      };
+      drawFitted(remote, 0);
+      drawFitted(local,  half);
+      ctx.fillStyle = 'rgba(0,0,0,0.6)';
+      ctx.fillRect(0, H - 22, W, 22);
+      ctx.fillStyle = '#fff';
+      ctx.font = '13px sans-serif';
+      ctx.fillText(`${partner?.username || '?'} (izq)  ·  ${user?.username || ''} (der)  ·  ${new Date().toLocaleString()}`, 8, H - 6);
+      return c.toDataURL('image/jpeg', 0.7);
+    } catch (e) {
+      console.warn('No se pudo componer captura:', e);
+      return captureVideoFrame(remoteVideoRef.current);
+    }
+  };
+
   const handleReport = async () => {
     if (!reportReason || !partner?.userId) return;
+    const screenshot = buildReportSnapshot();
+    const chatSnapshot = messages.slice(-30).map(m => ({ from: m.from, text: m.text }));
     try {
       const res = await fetch(`${SERVER_URL}/api/reports`, {
         method: 'POST',
@@ -305,7 +361,12 @@ export default function App() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ reportedUserId: partner.userId, reason: reportReason })
+        body: JSON.stringify({
+          reportedUserId: partner.userId,
+          reason: reportReason,
+          screenshot,
+          chatSnapshot
+        })
       });
       if (res.ok) {
         setReportSent(true);

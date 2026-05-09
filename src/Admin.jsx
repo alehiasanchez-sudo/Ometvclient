@@ -188,6 +188,7 @@ function ReportsTab({ token }) {
   const [reports, setReports] = useState([]);
   const [status, setStatus] = useState('pending');
   const [loading, setLoading] = useState(false);
+  const [evidence, setEvidence] = useState(null); // { screenshot, chatSnapshot, ... }
 
   const load = async () => {
     setLoading(true);
@@ -229,18 +230,24 @@ function ReportsTab({ token }) {
       {loading ? <p>Cargando…</p> : (
         <div className="admin-table-wrapper">
           <table className="admin-table">
-            <thead><tr><th>Reportado</th><th>Reportes totales</th><th>Por</th><th>Razón</th><th>Fecha</th><th>Acción</th></tr></thead>
+            <thead><tr><th>Reportado</th><th>Reportes totales</th><th>Por</th><th>Razón</th><th>Evidencia</th><th>Fecha</th><th>Acción</th></tr></thead>
             <tbody>
-              {reports.length === 0 && <tr><td colSpan="6" style={{ textAlign:'center', padding:20 }}>Sin reportes</td></tr>}
+              {reports.length === 0 && <tr><td colSpan="7" style={{ textAlign:'center', padding:20 }}>Sin reportes</td></tr>}
               {reports.map(r => {
                 const total = r.reportedUser?.totalReports || 0;
                 const sev = total >= 5 ? 'sev-high' : total >= 3 ? 'sev-mid' : 'sev-low';
+                const hasEvidence = r.screenshot || (r.chatSnapshot && r.chatSnapshot.length);
                 return (
                 <tr key={r._id}>
                   <td><b>{r.reportedUser?.username || '?'}</b> {r.reportedUser?.banned && '🚫'}</td>
                   <td><span className={`report-count ${sev}`}>⚑ {total}</span></td>
                   <td>{r.reportedBy?.username || '?'}</td>
                   <td>{REASON_LABELS[r.reason] || r.reason}</td>
+                  <td>
+                    {hasEvidence
+                      ? <button onClick={() => setEvidence(r)}>📷 Ver</button>
+                      : <span className="muted">—</span>}
+                  </td>
                   <td>{new Date(r.createdAt).toLocaleString()}</td>
                   <td className="actions">
                     {r.status === 'pending' ? (
@@ -257,6 +264,43 @@ function ReportsTab({ token }) {
               })}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {evidence && (
+        <div className="admin-overlay" onClick={() => setEvidence(null)}>
+          <div className="admin-panel evidence-panel" onClick={e => e.stopPropagation()}>
+            <div className="admin-header">
+              <h2>Evidencia del reporte</h2>
+              <button className="admin-close" onClick={() => setEvidence(null)}>✕</button>
+            </div>
+            <div className="admin-body" style={{ overflow: 'auto' }}>
+              <p style={{ color: '#aaa', marginBottom: 8 }}>
+                <b>{evidence.reportedUser?.username}</b> reportado por <b>{evidence.reportedBy?.username}</b>
+                {' · '}{REASON_LABELS[evidence.reason] || evidence.reason}
+                {' · '}{new Date(evidence.createdAt).toLocaleString()}
+              </p>
+              {evidence.screenshot ? (
+                <img
+                  src={evidence.screenshot}
+                  alt="captura"
+                  style={{ width: '100%', borderRadius: 8, border: '1px solid #333' }}
+                />
+              ) : <p className="muted">Sin captura disponible</p>}
+              {evidence.chatSnapshot && evidence.chatSnapshot.length > 0 && (
+                <>
+                  <h4 style={{ marginTop: 16, color: '#fff' }}>Últimos mensajes</h4>
+                  <div style={{ background: '#111', padding: 10, borderRadius: 8, maxHeight: 240, overflowY: 'auto' }}>
+                    {evidence.chatSnapshot.map((m, i) => (
+                      <div key={i} style={{ fontSize: '0.85rem', marginBottom: 4, color: m.from === 'you' ? '#cce4ff' : m.from === 'stranger' ? '#fff' : '#888' }}>
+                        <b>{m.from === 'you' ? evidence.reportedBy?.username : m.from === 'stranger' ? evidence.reportedUser?.username : 'sistema'}:</b> {m.text}
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
         </div>
       )}
     </>
