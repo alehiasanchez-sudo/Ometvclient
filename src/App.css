@@ -53,14 +53,18 @@
 }
 
 .video-wrapper.remote {
-  flex: 1;
+  flex: 1 1 50%;
+  width: 50%;
+  box-sizing: border-box;
   height: 100%;
   position: relative;
   border-right: 2px solid rgba(139,0,0,0.3);
 }
 
 .video-wrapper.local {
-  flex: 1;
+  flex: 1 1 50%;
+  width: 50%;
+  box-sizing: border-box;
   height: 100%;
   position: relative;
   background: #000;
@@ -241,13 +245,17 @@
   justify-content: flex-start;
   padding: 12px;
   gap: 10px;
-  flex: 1;
-  border-right: 2px solid rgba(139,0,0,0.2);
+  flex: 1 1 50%;
+  width: 50%;
+  box-sizing: border-box;
+  border-right: 2px solid rgba(139,0,0,0.3);
 }
 
 /* ── Sección de chat ── */
 .chat-section {
-  flex: 1;
+  flex: 1 1 50%;
+  width: 50%;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   background: var(--bg2);
