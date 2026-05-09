@@ -30,7 +30,6 @@ export default function App() {
   const [showReport, setShowReport] = useState(false);
   const [reportReason, setReportReason] = useState('');
   const [reportSent, setReportSent] = useState(false);
-  const [localSize, setLocalSize] = useState(0); // 0=S, 1=M, 2=L, 3=XL
   const [giftAnimation, setGiftAnimation] = useState(null);
   const [showWithdraw, setShowWithdraw] = useState(false);
   const [showAdmin, setShowAdmin] = useState(false);
@@ -337,7 +336,7 @@ export default function App() {
           </div>
         )}
 
-        <div className={`video-wrapper local size-${localSize}`}>
+        <div className="video-wrapper local">
           <video ref={localVideoRef} autoPlay playsInline muted className="video" />
           {camOff && <div className="cam-off-overlay">📷 Cámara apagada</div>}
           <span className="label">Tú ({user?.username})</span>
@@ -357,9 +356,6 @@ export default function App() {
               {camOff ? '📷' : '📹'}
             </button>
           </div>
-          <button className="expand-btn" onClick={() => setLocalSize(s => (s + 1) % 4)} title="Cambiar tamaño">
-            {['⊞','◰','◳','⊡'][localSize]}
-          </button>
         </div>
 
         {/* Botón logout */}
@@ -377,59 +373,61 @@ export default function App() {
         )}
       </div>
 
-      <div className="chat-section">
-        <div className="messages">
-          {messages.map((msg, i) => (
-            <div key={i} className={`message ${msg.from}`}>
-              {msg.from === 'you' && <span className="sender">Tú: </span>}
-              {msg.from === 'stranger' && <span className="sender">Usuario: </span>}
-              {msg.text}
+      <div className="bottom-section">
+        <div className="controls-panel">
+          <div className="controls">
+            {status === 'idle' && (
+              <button className="btn start" onClick={handleStart}>▶ Iniciar</button>
+            )}
+            {status === 'waiting' && (
+              <button className="btn stop" onClick={handleStop}>✕ Cancelar</button>
+            )}
+            {status === 'connected' && (
+              <>
+                <button className="btn next" onClick={handleNext}>⏭ Siguiente</button>
+                <button className="btn stop" onClick={handleStop}>✕ Parar</button>
+                <Gifts token={token} partnerId={partner?.userId} socket={socketRef.current} />
+                <button className="btn report" onClick={() => setShowReport(true)}>⚑ Reportar</button>
+              </>
+            )}
+          </div>
+          {status === 'connected' && partner && (
+            <div className="partner-bar">
+              <span className="partner-bar-item">
+                🌍 <strong>{partner.country}</strong>
+              </span>
+              <span className="partner-bar-item">
+                {partner.gender === 'male' ? '👨' : partner.gender === 'female' ? '👩' : '🧑'}{' '}
+                <strong>{partner.gender === 'male' ? 'Hombre' : partner.gender === 'female' ? 'Mujer' : 'Otro'}</strong>
+              </span>
             </div>
-          ))}
-          {reportSent && (
-            <div className="message system">✓ Reporte enviado</div>
           )}
         </div>
 
-        <form className="chat-input" onSubmit={sendMessage}>
-          <input
-            type="text"
-            placeholder={status === 'connected' ? 'Escribe un mensaje...' : 'Conéctate para chatear'}
-            value={inputMsg}
-            onChange={e => setInputMsg(e.target.value)}
-            disabled={status !== 'connected'}
-          />
-          <button type="submit" disabled={status !== 'connected'}>Enviar</button>
-        </form>
-
-        {/* Info del compañero */}
-        {status === 'connected' && partner && (
-          <div className="partner-bar">
-            <span className="partner-bar-item">
-              🌍 <strong>{partner.country}</strong>
-            </span>
-            <span className="partner-bar-item">
-              {partner.gender === 'male' ? '👨' : partner.gender === 'female' ? '👩' : '🧑'}{' '}
-              <strong>{partner.gender === 'male' ? 'Hombre' : partner.gender === 'female' ? 'Mujer' : 'Otro'}</strong>
-            </span>
+        <div className="chat-section">
+          <div className="messages">
+            {messages.map((msg, i) => (
+              <div key={i} className={`message ${msg.from}`}>
+                {msg.from === 'you' && <span className="sender">Tú: </span>}
+                {msg.from === 'stranger' && <span className="sender">Usuario: </span>}
+                {msg.text}
+              </div>
+            ))}
+            {reportSent && (
+              <div className="message system">✓ Reporte enviado</div>
+            )}
           </div>
-        )}
 
-        <div className="controls">
-          {status === 'idle' && (
-            <button className="btn start" onClick={handleStart}>▶ Iniciar</button>
-          )}
-          {status === 'waiting' && (
-            <button className="btn stop" onClick={handleStop}>✕ Cancelar</button>
-          )}
-          {status === 'connected' && (
-            <>
-              <button className="btn next" onClick={handleNext}>⏭ Siguiente</button>
-              <Gifts token={token} partnerId={partner?.userId} socket={socketRef.current} />
-              <button className="btn report" onClick={() => setShowReport(true)}>⚑ Reportar</button>
-              <button className="btn stop" onClick={handleStop}>✕ Detener</button>
-            </>
-          )}
+          <form className="chat-input" onSubmit={sendMessage}>
+            <input
+              type="text"
+              placeholder={status === 'connected' ? 'Escribe un mensaje...' : 'Conéctate para chatear'}
+              value={inputMsg}
+              onChange={e => setInputMsg(e.target.value)}
+              disabled={status !== 'connected'}
+            />
+            <button type="submit" disabled={status !== 'connected'}>Enviar</button>
+          </form>
         </div>
       </div>
     </div>

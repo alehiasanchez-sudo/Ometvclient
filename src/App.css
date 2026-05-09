@@ -11,6 +11,7 @@
 
 .app {
   display: flex;
+  flex-direction: column;
   height: 100vh;
   background: var(--bg);
   border: var(--border-width) solid var(--border);
@@ -44,34 +45,26 @@
 /* ── Sección de video ── */
 .video-section {
   flex: 1;
+  display: flex;
+  flex-direction: row;
   position: relative;
   background: #0a0c10;
   min-height: 0;
 }
 
 .video-wrapper.remote {
-  width: 100%;
+  flex: 1;
   height: 100%;
   position: relative;
+  border-right: 2px solid rgba(139,0,0,0.3);
 }
 
 .video-wrapper.local {
-  position: absolute;
-  bottom: 16px;
-  right: 16px;
-  width: 220px;
-  height: 165px;
-  border-radius: 10px;
-  overflow: hidden;
-  border: 2px solid var(--border);
+  flex: 1;
+  height: 100%;
+  position: relative;
   background: #000;
-  transition: width 0.3s ease, height 0.3s ease;
-  z-index: 5;
 }
-
-.video-wrapper.local.size-1 { width: 300px; height: 225px; }
-.video-wrapper.local.size-2 { width: 380px; height: 285px; }
-.video-wrapper.local.size-3 { width: 480px; height: 360px; }
 
 .video {
   width: 100%;
@@ -232,13 +225,32 @@
   color: #aaa;
 }
 
+/* ── Sección inferior (controles + chat) ── */
+.bottom-section {
+  display: flex;
+  flex-direction: row;
+  height: 200px;
+  flex-shrink: 0;
+  background: var(--bg2);
+  border-top: 2px solid rgba(139,0,0,0.3);
+}
+
+.controls-panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 12px;
+  gap: 10px;
+  min-width: 320px;
+  border-right: 2px solid rgba(139,0,0,0.2);
+}
+
 /* ── Sección de chat ── */
 .chat-section {
-  width: 320px;
+  flex: 1;
   display: flex;
   flex-direction: column;
   background: var(--bg2);
-  border-left: 2px solid rgba(139,0,0,0.3);
 }
 
 .messages {
@@ -352,14 +364,15 @@
 /* ── Controles ── */
 .controls {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
-  padding: 12px;
-  border-top: 1px solid rgba(139,0,0,0.2);
+  padding: 0;
 }
 
 .btn {
-  flex: 1;
-  padding: 11px;
+  flex: 1 1 calc(50% - 4px);
+  min-width: 100px;
+  padding: 14px 10px;
   border: none;
   border-radius: 10px;
   font-size: 0.9rem;
@@ -376,34 +389,9 @@
 .btn.stop { background: #444; color: #ccc; border: 1px solid #555; }
 .btn.report { background: #b8860b; color: #fff; flex: 0.8; }
 
-/* ── Botón expandir cámara local ── */
-.expand-btn {
-  position: absolute;
-  top: 6px;
-  right: 6px;
-  background: rgba(0,0,0,0.6);
-  border: 1px solid #555;
-  color: #fff;
-  width: 24px;
-  height: 24px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.85rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.2s;
-  z-index: 5;
-}
-
-.expand-btn:hover {
-  background: rgba(139,0,0,0.7);
-}
-
 /* ── RESPONSIVE MÓVIL ── */
 @media (max-width: 640px) {
   .app {
-    flex-direction: column;
     height: 100dvh;
     border-radius: 0;
     border: none;
@@ -420,17 +408,6 @@
     width: 100%;
   }
 
-  .video-wrapper.local {
-    width: 100px;
-    height: 75px;
-    bottom: 8px;
-    right: 8px;
-  }
-
-  .video-wrapper.local.size-1 { width: 130px; height: 97px; }
-  .video-wrapper.local.size-2 { width: 160px; height: 120px; }
-  .video-wrapper.local.size-3 { width: 200px; height: 150px; }
-
   .logout-btn {
     top: 8px;
     right: 8px;
@@ -445,11 +422,23 @@
     left: 8px;
   }
 
-  .chat-section {
-    width: 100%;
+  .bottom-section {
+    flex-direction: column;
+    height: auto;
     flex: 1;
-    border-left: none;
-    border-top: 2px solid rgba(139,0,0,0.3);
+    min-height: 0;
+  }
+
+  .controls-panel {
+    min-width: 0;
+    border-right: none;
+    border-bottom: 1px solid rgba(139,0,0,0.2);
+    padding: 8px;
+    gap: 6px;
+  }
+
+  .chat-section {
+    flex: 1;
     min-height: 0;
   }
 
@@ -459,11 +448,6 @@
 
   .message {
     font-size: 0.85rem;
-  }
-
-  .controls {
-    padding: 8px;
-    gap: 6px;
   }
 
   .btn {
