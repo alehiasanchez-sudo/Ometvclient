@@ -110,14 +110,6 @@ function UsersTab({ token, isOwner }) {
     } catch (e) { alert(e.message); }
   };
 
-  const adjustCoins = (id, username) => {
-    const v = prompt(`Ajustar monedas de ${username} (positivo agrega, negativo resta):`);
-    if (!v) return;
-    const delta = parseInt(v, 10);
-    if (!Number.isInteger(delta) || delta === 0) return alert('Cantidad inválida');
-    action(id, 'coins', { delta });
-  };
-
   const deleteUser = (id, username) => {
     const confirm1 = prompt(`⚠️ Vas a ELIMINAR PERMANENTEMENTE a "${username}". Escribe el nombre exacto para confirmar:`);
     if (confirm1 !== username) return alert('Cancelado: el nombre no coincide');
@@ -169,12 +161,9 @@ function UsersTab({ token, isOwner }) {
                         ? <button onClick={() => action(u._id, 'demote')}>Quitar admin</button>
                         : <button onClick={() => action(u._id, 'promote')}>Hacer admin</button>
                     )}
-                    {/* Coins + Delete: sólo owner */}
+                    {/* Delete: sólo owner */}
                     {isOwner && u.role !== 'owner' && (
-                      <>
-                        <button onClick={() => adjustCoins(u._id, u.username)}>± Monedas</button>
-                        <button className="danger" onClick={() => deleteUser(u._id, u.username)}>🗑️ Eliminar</button>
-                      </>
+                      <button className="danger" onClick={() => deleteUser(u._id, u.username)}>🗑️ Eliminar</button>
                     )}
                   </td>
                 </tr>
