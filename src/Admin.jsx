@@ -217,6 +217,24 @@ function ReportsTab({ token }) {
     } catch (e) { alert(e.message); }
   };
 
+  const deleteReport = async (id, username) => {
+    if (!window.confirm(`¿Eliminar este reporte y limpiar todos los reportes de "${username}"?`)) return;
+    try {
+      const r = await fetch(`${SERVER_URL}/api/admin/reports/${id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error);
+      load();
+    } catch (e) { alert(e.message); }
+  };
+
+  const openImageInNewTab = (dataUrl) => {
+    const w = window.open();
+    if (w) w.document.write(`<img src="${dataUrl}" style="max-width:100%;display:block;margin:auto"/>`);
+  };
+
   return (
     <>
       <div className="admin-toolbar">
@@ -250,14 +268,14 @@ function ReportsTab({ token }) {
                   </td>
                   <td>{new Date(r.createdAt).toLocaleString()}</td>
                   <td className="actions">
-                    {r.status === 'pending' ? (
+                    {r.status === 'pending' && (
                       <>
                         <button className="danger" onClick={() => resolve(r._id, 'ban')}>Banear</button>
                         <button onClick={() => resolve(r._id, 'dismiss')}>Descartar</button>
                       </>
-                    ) : (
-                      <span className="muted">{r.status}</span>
                     )}
+                    {r.status !== 'pending' && <span className="muted" style={{ marginRight: 6 }}>{r.status}</span>}
+                    <button className="danger" onClick={() => deleteReport(r._id, r.reportedUser?.username || '')}>🗑️</button>
                   </td>
                 </tr>
                 );
@@ -281,11 +299,25 @@ function ReportsTab({ token }) {
                 {' · '}{new Date(evidence.createdAt).toLocaleString()}
               </p>
               {evidence.screenshot ? (
-                <img
-                  src={evidence.screenshot}
-                  alt="captura"
-                  style={{ width: '100%', borderRadius: 8, border: '1px solid #333' }}
-                />
+                <>
+                  <img
+                    src={evidence.screenshot}
+                    alt="captura"
+                    onClick={() => openImageInNewTab(evidence.screenshot)}
+                    style={{ width: '100%', borderRadius: 8, border: '1px solid #333', cursor: 'zoom-in' }}
+                    title="Click para abrir en grande"
+                  />
+                  <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+                    <button onClick={() => openImageInNewTab(evidence.screenshot)}>🔍 Abrir en nueva pestaña</button>
+                    <a
+                      href={evidence.screenshot}
+                      download={`reporte-${evidence._id}.jpg`}
+                      style={{ textDecoration: 'none' }}
+                    >
+                      <button>⬇️ Descargar</button>
+                    </a>
+                  </div>
+                </>
               ) : <p className="muted">Sin captura disponible</p>}
               {evidence.chatSnapshot && evidence.chatSnapshot.length > 0 && (
                 <>
