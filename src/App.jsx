@@ -41,6 +41,7 @@ export default function App() {
   const socketRef = useRef(null);
   const pcRef = useRef(null);
   const localStreamRef = useRef(null);
+  const wakeLockRef = useRef(null);
 
   const cleanupPeer = () => {
     if (pcRef.current) {
@@ -113,6 +114,50 @@ export default function App() {
       }
     }
   };
+
+  // Mantener la pantalla encendida mientras se está en llamada
+  useEffect(() => {
+    if (status !== 'connected') return;
+
+    let cancelled = false;
+
+    const acquire = async () => {
+      try {
+        if ('wakeLock' in navigator) {
+          const lock = await navigator.wakeLock.request('screen');
+          if (cancelled) {
+            lock.release().catch(() => {});
+            return;
+          }
+          wakeLockRef.current = lock;
+          lock.addEventListener('release', () => {
+            wakeLockRef.current = null;
+          });
+        }
+      } catch (err) {
+        console.warn('Wake Lock no disponible:', err);
+      }
+    };
+
+    acquire();
+
+    // Reactivar al volver a la pestaña (el sistema lo libera al ocultarse)
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible' && status === 'connected' && !wakeLockRef.current) {
+        acquire();
+      }
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+
+    return () => {
+      cancelled = true;
+      document.removeEventListener('visibilitychange', onVisibility);
+      if (wakeLockRef.current) {
+        wakeLockRef.current.release().catch(() => {});
+        wakeLockRef.current = null;
+      }
+    };
+  }, [status]);
 
   useEffect(() => {
     if (!token) return;
